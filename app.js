@@ -1,65 +1,58 @@
+// dependencies
+var fs = require('fs');
+var http = require('http');
 var express = require('express');
+var routes = require('./routes');
 var path = require('path');
-var favicon = require('static-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-
-var dbConfig = require('./db');
 var mongoose = require('mongoose');
-// Connect to DB
-mongoose.connect(dbConfig.url);
 
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+
+// global config
 var app = express();
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
+app.set('port', process.env.PORT || 1337);
+app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
-app.use(favicon());
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Configuring Passport
-var passport = require('passport');
-var expressSession = require('express-session');
-// TODO - Why Do we need this key ?
-app.use(expressSession({secret: 'mySecretKey'}));
+app.use(express.logger());
+app.use(express.favicon());
+app.use(express.bodyParser());
+app.use(express.methodOverride());
+app.use(express.cookieParser('your secret here'));
+app.use(express.session());
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(app.router);
+app.use(express.static(path.join(__dirname, 'public')));
 
- // Using the flash middleware provided by connect-flash to store messages in session
- // and displaying in templates
-var flash = require('connect-flash');
-app.use(flash());
-
-// Initialize Passport
-var initPassport = require('./passport/init');
-initPassport(passport);
-
-var routes = require('./routes/index')(passport);
-app.use('/', routes);
-
-/// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-    var err = new Error('Not Found');
-    err.status = 404;
-    next(err);
+// env config
+app.configure('development', function(){
+    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 });
 
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-    app.use(function(err, req, res, next) {
-        res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: err
-        });
-    });
-}
+app.configure('production', function(){
+    app.use(express.errorHandler());
+});
 
-module.exports = app;
+// passport config
+
+var Account = require('./models/account');
+passport.use(new LocalStrategy(Account.authenticate()));
+passport.serializeUser(Account.serializeUser());
+passport.deserializeUser(Account.deserializeUser());
+
+// mongo config
+
+mongoose.connect('mongodb://localhost/passport_local_mongoose');
+
+// mongo model
+// var Model_Name = require('add_your_models_here');
+
+// routes
+require('./routes')(app);
+
+// run server
+app.listen(app.get('port'), function(){
+  console.log('\nExpress server listening on port ' + app.get('port'));
+});

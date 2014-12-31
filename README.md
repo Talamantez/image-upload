@@ -1,13 +1,20 @@
-passport-mongo
-==============
+## quick start
 
-This repository serves as an example of a basic Node.js application which is using [Passport](http://passportjs.org/) as the authentication middleware for authenticating against a locally configured Mongo backend
+1. `$ git clone git@github.com:mjhea0/node-bootstrap3-template.git your_app`
+2. `$ cd your_app`
+3. `$ npm install`
+4. `$ node app`
 
-Steps to run the app
-=====================
-* After cloning the repo, install the dependencies by running **npm install**
-* To start the server, run **npm start** on the base directory
+### desktop version
 
-Perquisites
-============
-The server assumes that you have a local mongo instance running. This means if you have mongo installed locally, all you need to do is configure the db.js file correctly and run the mongod daemon
+![main](https://raw.github.com/mjhea0/node-bootstrap3-template/master/screenshots/main.png)
+
+### mobile version 1
+
+![mobile1](https://raw.github.com/mjhea0/node-bootstrap3-template/master/screenshots/mobile1.png)
+
+### mobile version 2
+
+![mobile2](https://raw.github.com/mjhea0/node-bootstrap3-template/master/screenshots/mobile2.png)
+
+
